@@ -8,8 +8,8 @@ class FocalLoss(torch.nn.Module):
         self.gamma = gamma
         self.alpha = alpha
 
-    def forward(self, input, target):
-        ce_loss = F.binary_cross_entropy_with_logits(input, target, reduction='none')
+    def forward(self, pred, target):
+        ce_loss = F.binary_cross_entropy_with_logits(pred, target, reduction='none')
         pt = torch.exp(-ce_loss)
         focal_loss = ((1 - pt) ** self.gamma * ce_loss).mean()
 
@@ -20,15 +20,4 @@ class FocalLoss(torch.nn.Module):
         return focal_loss
 
 
-# 定义预测值和目标标签值
-preds = torch.tensor([[0.1, 0.9, 0.3],
-                      [0.8, 0.2, 0.6],
-                      [0.4, 0.5, 0.7]])
-targets = torch.tensor([[0, 1, 0],
-                        [1, 0, 1],
-                        [0, 1, 1]], dtype=torch.float32)
 
-focal_loss = FocalLoss(gamma=2, alpha=None)
-loss = focal_loss(preds, targets)
-
-print(loss)
