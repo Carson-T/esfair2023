@@ -27,3 +27,13 @@ class MultiClassFocalLossWithAlpha(nn.Module):
         if self.reduction == "sum":
             return torch.sum(focal_loss)
         return focal_loss
+
+FocalLoss = MultiClassFocalLossWithAlpha(alpha = [0.033, 0.041, 0.026, 0.02, 0.008, 0.872])
+preds = torch.tensor([[0.1, 0.9, 0.3],
+                      [0.8, 0.2, 0.6],
+                      [0.4, 0.5, 0.7]]).cuda()
+targets = torch.tensor([[0, 1, 0],
+                        [1, 0, 1],
+                        [0, 1, 1]], dtype=torch.float32).cuda()
+
+loss = FocalLoss(preds, targets)
