@@ -13,6 +13,7 @@ def args_parser():
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--resize', type=int, default=512)
     parser.add_argument('--is_multiscale', type=int, default=0)
+    parser.add_argument('--optim', default="SGD")
     parser.add_argument('--loss_func', default="CEloss")
     parser.add_argument('--lr_scheduler', default="Warm-up-Cosine-Annealing")
     parser.add_argument('--model_name',  default="resnet50-fp16-v5")

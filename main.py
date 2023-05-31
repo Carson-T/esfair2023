@@ -2,6 +2,7 @@ from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
 from torchvision import models
 import os
+import json
 import random
 import numpy as np
 import timm
@@ -150,3 +151,5 @@ if __name__ == '__main__':
     pretrained_model = timm.create_model("resnet50", pretrained=True)
     model = mymodel(pretrained_model, args["num_classes"])
     main(args, model)
+    with open("./log/resnet50/"+args["model_name"]+"/parameters.json","w+") as f:
+        json.dump(args, f)
