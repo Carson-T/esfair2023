@@ -13,7 +13,7 @@ from train import *
 from dataset import MyDataset
 from argparser import args_parser
 from model import *
-from utils.FocalLoss import MultiClassFocalLossWithAlpha
+from utils.FocalLoss import FocalLoss
 
 
 def set_seed(seed=2023):
@@ -80,8 +80,8 @@ def main(args, model):
     if args["loss_func"] == "CEloss":
         loss_func = torch.nn.CrossEntropyLoss(torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])).to(
             args["device"])
-    elif args["loss_func"] == "Focal_loss":
-        loss_func = MultiClassFocalLossWithAlpha(alpha=[0.033, 0.041, 0.026, 0.02, 0.008, 0.872]).to(args["device"])
+    elif args["loss_func"] == "FocalLoss":
+        loss_func = FocalLoss(alpha=[0.033, 0.041, 0.026, 0.02, 0.008, 0.872]).to(args["device"])
 
     if args["lr_scheduler"] == "Warm-up-Cosine-Annealing":
         init_ratio, warm_up_steps, min_lr_ratio, max_steps = args["init_ratio"], args["epochs"] / 10, args[
