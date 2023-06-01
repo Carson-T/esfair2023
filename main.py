@@ -69,7 +69,8 @@ def main(args, model):
         val_sets.append(DataLoader(MyDataset(os.path.join(args["val_path"], groups[i]), val_transform),
                                    batch_size=args["batch_size"], shuffle=True, num_workers=8, pin_memory=True,
                                    drop_last=True))
-
+    if args["is_parallel"] == 1:
+        model = nn.DataParallel(model,device_ids=args["device_ids"])
     model.to(args["device"])
     model.apply(xavier)
     if args["optim"] == "Adam":
