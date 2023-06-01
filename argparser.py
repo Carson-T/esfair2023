@@ -12,6 +12,7 @@ def args_parser():
     parser.add_argument('--epochs', type=int, default=80)
     parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--resize', type=int, default=512)
+    parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--is_multiscale', type=int, default=0)
     parser.add_argument('--is_parallel', type=int, default=0)
     parser.add_argument('--device_ids', type=list, default=[5,6])

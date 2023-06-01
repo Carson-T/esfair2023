@@ -20,6 +20,8 @@ def set_seed(seed=2023):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 
@@ -64,10 +66,10 @@ def main(args, model):
     for i in range(len(groups)):
         print(groups[i])
         train_sets.append(DataLoader(MyDataset(os.path.join(args["train_path"], groups[i]), train_transform),
-                                     batch_size=args["batch_size"], shuffle=True, num_workers=8, pin_memory=True,
+                                     batch_size=args["batch_size"], shuffle=True, num_workers=args["num_workers"], pin_memory=True,
                                      drop_last=True))
         val_sets.append(DataLoader(MyDataset(os.path.join(args["val_path"], groups[i]), val_transform),
-                                   batch_size=args["batch_size"], shuffle=True, num_workers=8, pin_memory=True,
+                                   batch_size=args["batch_size"], shuffle=True, num_workers=args["num_workers"], pin_memory=True,
                                    drop_last=True))
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model,device_ids=args["device_ids"])
