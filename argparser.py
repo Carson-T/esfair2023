@@ -6,7 +6,7 @@ def args_parser():
     parser.add_argument('--device', default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument('--num_classes', type=int, default=6)
     parser.add_argument('--lr', type=float, default=0.0008)
-    parser.add_argument('--weight_decay', type=float, default=0.05)
+    parser.add_argument('--weight_decay', type=float, default=0.01)
     parser.add_argument('--init_ratio', type=float, default=0.05)
     parser.add_argument('--min_lr_ratio', type=float, default=0.001)
     parser.add_argument('--epochs', type=int, default=120)
