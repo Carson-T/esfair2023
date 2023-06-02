@@ -158,7 +158,8 @@ if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
     # device = "cuda" if torch.cuda.is_available() else "cpu"
-    pretrained_model = timm.create_model("resnet50", pretrained=True)
+    # pretrained_model = timm.create_model("resnet50", pretrained=True)
+    pretrained_model = models.resnet50(pretrained=True)
     model = mymodel(pretrained_model, args["num_classes"])
     main(args, model)
     with open("./log/resnet50/"+args["model_name"]+"/parameters.json","w+") as f:
