@@ -21,6 +21,3 @@ class mymodel(nn.Module):
     output = self.pretrained_model(x)
     return output
 
-def xavier(m):
-    if type(m) == torch.nn.Linear:
-        torch.nn.init.xavier_uniform_(m.weight)

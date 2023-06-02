@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
 from torchvision import models
@@ -5,6 +6,7 @@ import os
 import json
 import random
 import numpy as np
+import torch.nn as nn
 import timm
 import albumentations
 from albumentations import pytorch as AT
@@ -12,7 +14,8 @@ from torch.utils.tensorboard import SummaryWriter
 from train import *
 from dataset import MyDataset
 from argparser import args_parser
-from model import *
+from model import mymodel
+from utils.initialize import *
 from utils.FocalLoss import FocalLoss
 
 
@@ -74,7 +77,11 @@ def main(args, model):
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model,device_ids=args["device_ids"])
     model.to(args["device"])
-    model.apply(xavier)
+    if args["init"] == "xavier":
+        model.apply(xavier)
+    elif args["init"] == "kaiming":
+        model.apply(kaiming)
+
     if args["optim"] == "Adam":
         optimizer = torch.optim.Adam(model.parameters(),lr=args["lr"])
     elif args["optim"] == "SGD":
