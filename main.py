@@ -1,7 +1,7 @@
 import torch
-import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
+import torch.backends.cudnn as cudnn
 from torchvision import models
 import os
 import json
@@ -38,12 +38,12 @@ def main(args, model):
 
     if args["is_multiscale"] == 1:
         train_resize = albumentations.OneOf([
-            albumentations.Resize(500, 500),
-            albumentations.Resize(400, 400),
+            albumentations.Resize(512, 512),
             albumentations.Resize(450, 450),
+            albumentations.Resize(400, 400),
             albumentations.Resize(370, 370),
         ], p=1)
-        val_resize = albumentations.Resize(500, 500),
+        val_resize = albumentations.Resize(512, 512)
     else:
         train_resize = val_resize = albumentations.Resize(args["resize"], args["resize"])
 
@@ -55,7 +55,7 @@ def main(args, model):
         albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
         albumentations.ShiftScaleRotate(scale_limit=0.2, rotate_limit=90, p=0.5),
         albumentations.Flip(p=0.5),
-        # albumentations.PadIfNeeded(500, 500),
+        albumentations.PadIfNeeded(512, 512),
         albumentations.Normalize(),
         AT.ToTensorV2()
     ])
@@ -160,7 +160,6 @@ def main(args, model):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
     pretrained_model = timm.create_model("resnest50d", pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
     model = mymodel(pretrained_model, args["num_classes"])
