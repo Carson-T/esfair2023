@@ -1,4 +1,5 @@
 import torch
+import torch.backends.cudnn as cudnn
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
 from torchvision import models
@@ -25,6 +26,8 @@ def set_seed(seed=2023):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    cudnn.benchmark = True
+    cudnn.deterministic = True
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 
@@ -158,8 +161,8 @@ if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
     # device = "cuda" if torch.cuda.is_available() else "cpu"
-    # pretrained_model = timm.create_model("resnet50", pretrained=True)
-    pretrained_model = models.resnet50(pretrained=True)
+    pretrained_model = timm.create_model("resnest50d", pretrained=True)
+    # pretrained_model = models.resnet50(pretrained=True)
     model = mymodel(pretrained_model, args["num_classes"])
     main(args, model)
     with open("./log/resnet50/"+args["model_name"]+"/parameters.json","w+") as f:
