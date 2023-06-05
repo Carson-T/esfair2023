@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
+import torch.backends.cudnn as cudnn
 from torchvision import models
 import os
 import json
@@ -25,6 +26,8 @@ def set_seed(seed=2023):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    cudnn.benchmark = True
+    cudnn.deterministic = True
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 
