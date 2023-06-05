@@ -164,5 +164,5 @@ if __name__ == '__main__':
     # pretrained_model = models.resnet50(pretrained=True)
     model = mymodel(pretrained_model, args["num_classes"])
     main(args, model)
-    with open("./log/resnet50/"+args["model_name"]+"/parameters.json","w+") as f:
+    with open(arga["log_dir"]+"/parameters.json","w+") as f:
         json.dump(args, f)
