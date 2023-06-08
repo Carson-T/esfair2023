@@ -160,7 +160,7 @@ def main(args, model):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    pretrained_model = timm.create_model("efficientnetv2_rw_s", pretrained=True)
+    pretrained_model = timm.create_model("efficientnet_b5", pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
     model = efficientnetv2(pretrained_model, args["num_classes"])
     main(args, model)
