@@ -15,7 +15,7 @@ from torch.utils.tensorboard import SummaryWriter
 from train import *
 from dataset import MyDataset
 from argparser import args_parser
-from model import mymodel
+from model import *
 from utils.initialize import *
 from utils.FocalLoss import FocalLoss
 
@@ -160,9 +160,9 @@ def main(args, model):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    pretrained_model = timm.create_model("resnest50d", pretrained=True)
+    pretrained_model = timm.create_model("efficientnetv2_rw_s", pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
-    model = mymodel(pretrained_model, args["num_classes"])
+    model = efficientnetv2(pretrained_model, args["num_classes"])
     main(args, model)
-    with open(arga["log_dir"]+"/parameters.json","w+") as f:
+    with open(args["log_dir"]+"/parameters.json","w+") as f:
         json.dump(args, f)
