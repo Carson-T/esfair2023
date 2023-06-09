@@ -21,9 +21,9 @@ class resnet50(nn.Module):
     output = self.pretrained_model(x)
     return output
 
-class efficientnetv2(nn.Module):
+class efficientnet(nn.Module):
   def __init__(self,pretrained_model,num_classes):
-    super(efficientnetv2,self).__init__()
+    super(efficientnet,self).__init__()
     self.pretrained_model = pretrained_model
     self.classifier = nn.Sequential(
         nn.Linear(self.pretrained_model.classifier.in_features,512),

@@ -20,12 +20,12 @@ def args_parser():
     parser.add_argument('--loss_func', default="CEloss")
     parser.add_argument('--init', default="xavier")
     parser.add_argument('--lr_scheduler', default="Warm-up-Cosine-Annealing")
-    parser.add_argument('--model_name',  default="resnext-fp16-server-v1")
+    parser.add_argument('--model_name',  default="effnetb4-fp16-server-v1")
     parser.add_argument('--train_path', default="../preprocessed_data/TrainingSet")
     parser.add_argument('--val_path',  default="../preprocessed_data/ValSet")
-    parser.add_argument('--saved_path', default='../saved_model/resnext50')
+    parser.add_argument('--saved_path', default='../saved_model/efficientNet')
     parser.add_argument('--spd_para', type=float, default=0.2)
-    parser.add_argument('--log_dir', default="./log/resnext50/resnext-fp16-server-v1")
+    parser.add_argument('--log_dir', default="./log/efficientNet/effnetb4-fp16-server-v1")
 
     args, _ = parser.parse_known_args()
     return args
