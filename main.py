@@ -2,6 +2,7 @@ import sys
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
 import torch.backends.cudnn as cudnn
+from torchvision import models
 import os
 import json
 import random
@@ -65,9 +66,9 @@ def main(args, model):
     ])
 
     train_loader = DataLoader(MyDataset(args["train_path"], train_transform), batch_size=args["batch_size"],
-                              shuffle=True, num_workers=args["num_workers"], pin_memory=False, drop_last=True)
+                              shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
     val_loader = DataLoader(MyDataset(args["val_path"], val_transform), batch_size=args["batch_size"],
-                            shuffle=True, num_workers=args["num_workers"], pin_memory=False, drop_last=True)
+                            shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model, device_ids=args["device_ids"])
     model.to(args["device"])
