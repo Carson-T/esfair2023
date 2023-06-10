@@ -34,7 +34,7 @@ def set_seed(seed=2023):
 def main(args, model):
     writer = SummaryWriter(log_dir=args["log_dir"])
     scaler = GradScaler()
-    groups = ["G6", "G7", "G8", "G10"]
+    # groups = ["G6", "G7", "G8", "G10"]
 
     if args["is_multiscale"] == 1:
         train_resize = albumentations.OneOf([

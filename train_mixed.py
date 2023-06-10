@@ -21,7 +21,7 @@ def train(train_loader, model, criterion, optimizer, scaler, args):
     total_targets = 0
     training_loss = 0.0
     for i,(images, targets, groups) in enumerate(tqdm(train_loader)):
-        groups = torch.tensor(groups)
+        groups = groups.to(args["device"])
         # total_targets += targets.shape[0]
         images = images.to(args["device"])
         targets = targets.to(args["device"])
