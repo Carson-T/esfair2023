@@ -108,8 +108,8 @@ def main(args, model):
             print(f'Epoch {iter}: group ' + nums2groups[i] + f' val acc: {val_groups_acc[i]}')
             writer.add_scalars("groups acc/" + "acc of " + nums2groups[i], {"train_acc": train_groups_acc[i],
                                                                             "val_acc": val_groups_acc[i]}, iter)
-
-        print(f'Epoch {iter}: overall acc: {val_overall_acc}')
+        print(f'Epoch {iter}: train overall acc: {train_overall_acc}')
+        print(f'Epoch {iter}: cal overall acc: {val_overall_acc}')
         writer.add_scalars("loss/" + "overall_loss", {"train_loss": train_loss, "val_loss": val_loss}, iter)
         lr_scheduler.step()
 
