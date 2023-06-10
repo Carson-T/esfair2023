@@ -3,7 +3,7 @@ import albumentations
 from albumentations import pytorch as AT
 import cv2
 from torchvision import models
-from model import mymodel
+from unmixed_version.model import mymodel
 
 
 
