@@ -133,7 +133,7 @@ def main(args, model):
                            iter)
         if performance_score > performance_score_init:
             performance_score_init = performance_score
-            plot_matrix(all_targets, all_preds, [0, 1, 2, 3, 4, 5], args["log_dir"] + "/confusion_matrix.jpg",
+            plot_matrix(all_targets.cpu(), all_preds.cpu(), [0, 1, 2, 3, 4, 5], args["log_dir"] + "/confusion_matrix.jpg",
                         ['BCC', 'BKL', 'MEL', 'NV', 'unknown', 'VASC'])
             torch.save(model.state_dict(), args["saved_path"] + "/" + args["model_name"] + ".pth")
 

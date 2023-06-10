@@ -37,7 +37,6 @@ def train(train_loader, model, criterion, optimizer, scaler, args):
         total_nums_per_g[i] = correct_per_g.shape[0]
         correct_nums_per_g[i] = torch.sum(correct_per_g).item()
 
-    print(total_nums_per_g)
     groups_acc = torch.div(correct_nums_per_g, total_nums_per_g)
     overall_acc = torch.sum(correct_nums_per_g) / torch.sum(total_nums_per_g) #calculate the overall accuracy
     return training_loss/torch.sum(total_nums_per_g), overall_acc, groups_acc
