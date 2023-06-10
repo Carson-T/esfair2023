@@ -10,7 +10,7 @@ def args_parser():
     parser.add_argument('--init_ratio', type=float, default=0.05)
     parser.add_argument('--min_lr_ratio', type=float, default=0.001)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--batch_size', type=int, default=64)
+    parser.add_argument('--batch_size', type=int, default=2)
     parser.add_argument('--resize', type=int, default=512)
     parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--is_multiscale', type=int, default=0)
