@@ -10,7 +10,7 @@ def plot_matrix(y_true, y_pred, labels_name, savepath, axis_labels=None):
 
 # 画图，如果希望改变颜色风格，可以改变此部分的cmap=pl.get_cmap('Blues')处
     fig = plt.figure()
-    plt.imshow(cm, interpolation='nearest', cmap=plt.get_cmap('Blues'))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.get_cmap('summer'))
     plt.colorbar()  # 绘制图例
 
 # 绘制坐标
@@ -28,7 +28,7 @@ def plot_matrix(y_true, y_pred, labels_name, savepath, axis_labels=None):
             # if int(cm[i][j] * 100 + 0.5) > 0:
             plt.text(j, i, cm[i][j],
                         ha="center", va="center",
-                        color="white" if cm[i][j] > 0.8 else "black")  # 如果要更改颜色风格，需要同时更改此行
+                        color="black")  # 如果要更改颜色风格，需要同时更改此行
 # 显示
 #     plt.show()
     fig.savefig(savepath)

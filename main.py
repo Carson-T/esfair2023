@@ -1,4 +1,3 @@
-import sys
 from torch.utils.data import DataLoader
 from torch.cuda.amp import GradScaler
 import torch.backends.cudnn as cudnn
@@ -8,8 +7,6 @@ import json
 import random
 import numpy as np
 import timm
-import albumentations
-from albumentations import pytorch as AT
 from torch.utils.tensorboard import SummaryWriter
 from train import *
 from dataset import MyDataset
@@ -18,6 +15,7 @@ from model import *
 from utils.initialize import *
 from utils.FocalLoss import FocalLoss
 from utils.confusion_matrix import plot_matrix
+from utils.transform import transform
 
 
 def set_seed(seed=2023):
@@ -35,35 +33,7 @@ def main(args, model):
     writer = SummaryWriter(log_dir=args["log_dir"])
     scaler = GradScaler()
 
-    if args["is_multiscale"] == 1:
-        train_resize = albumentations.OneOf([
-            albumentations.Resize(512, 512),
-            albumentations.Resize(450, 450),
-            albumentations.Resize(400, 400),
-            albumentations.Resize(370, 370),
-        ], p=1)
-        val_resize = albumentations.Resize(512, 512)
-    else:
-        train_resize = val_resize = albumentations.Resize(args["resize"], args["resize"])
-
-    train_transform = albumentations.Compose([
-        train_resize,
-        # albumentations.CenterCrop(64, 64),
-        albumentations.GaussNoise(p=0.5),
-        albumentations.HueSaturationValue(hue_shift_limit=20, sat_shift_limit=30, val_shift_limit=20, p=0.5),
-        albumentations.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.5),
-        albumentations.ShiftScaleRotate(scale_limit=0.2, rotate_limit=45, p=0.5),
-        albumentations.Flip(p=0.5),
-        albumentations.PadIfNeeded(512, 512),
-        albumentations.Normalize(),
-        AT.ToTensorV2()
-    ])
-
-    val_transform = albumentations.Compose([
-        val_resize,
-        albumentations.Normalize(),
-        AT.ToTensorV2()
-    ])
+    train_transform, val_transform = transform(args)
 
     train_loader = DataLoader(MyDataset(args["train_path"], train_transform), batch_size=args["batch_size"],
                               shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
@@ -83,8 +53,9 @@ def main(args, model):
         optimizer = torch.optim.SGD(model.parameters(), lr=args["lr"], momentum=0.9, weight_decay=args["weight_decay"])
 
     if args["loss_func"] == "CEloss":
-        loss_func = torch.nn.CrossEntropyLoss(torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])).to(
-            args["device"])
+        # weight = torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])
+        weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49])
+        loss_func = torch.nn.CrossEntropyLoss(weight).to(args["device"])
     elif args["loss_func"] == "FocalLoss":
         loss_func = FocalLoss(alpha=[0.033, 0.041, 0.026, 0.02, 0.008, 0.872]).to(args["device"])
 
@@ -148,6 +119,8 @@ if __name__ == '__main__':
         model = resnet(pretrained_model, args["num_classes"])
     elif "efficientnet" in args["backbone"]:
         model = efficientnet(pretrained_model, args["num_classes"])
+    elif "convnext" in args["backbone"]:
+        model = convnext(pretrained_model, args["num_classes"])
     main(args, model)
     with open(args["log_dir"] + "/parameters.json", "w+") as f:
         json.dump(args, f)
