@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-class resnet50(nn.Module):
+class resnet(nn.Module):
   def __init__(self,pretrained_model,num_classes):
-    super(resnet50,self).__init__()
+    super(resnet,self).__init__()
     self.pretrained_model = pretrained_model
     self.classifier = nn.Sequential(
         nn.Linear(self.pretrained_model.fc.in_features,512),
@@ -11,7 +11,7 @@ class resnet50(nn.Module):
         # nn.BatchNorm1d(1024),
         # nn.ReLU(),
         # nn.Linear(1024,512),
-        # nn.BatchNorm1d(512),
+        nn.BatchNorm1d(512),
         nn.ReLU(),
         nn.Linear(512,num_classes)
     )

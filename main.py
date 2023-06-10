@@ -141,7 +141,7 @@ def main(args, model):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    pretrained_model = timm.create_model("resnet50", pretrained=True)
+    pretrained_model = timm.create_model("resnet101d", pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
     model = resnet50(pretrained_model, args["num_classes"])
     main(args, model)
