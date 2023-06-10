@@ -34,7 +34,6 @@ def set_seed(seed=2023):
 def main(args, model):
     writer = SummaryWriter(log_dir=args["log_dir"])
     scaler = GradScaler()
-    # groups = ["G6", "G7", "G8", "G10"]
 
     if args["is_multiscale"] == 1:
         train_resize = albumentations.OneOf([
@@ -101,33 +100,19 @@ def main(args, model):
                                                                   factor=0.5, patience=10, verbose=True,
                                                                   min_lr=args["min_lr_ratio"] * args["lr"])
 
-    # lr_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda step: \
-    #                     (1 - init_ratio) / (warm_up_steps - 1) * step + init_ratio if step < warm_up_steps - 1 \
-    #                     else (1 - min_lr_ratio) * ((max_steps-step)/(max_steps-(warm_up_steps-1))) + min_lr_ratio)
-    val_groups_acc_dict = {}
     nums2groups = {0:"G6", 1:"G7", 2:"G8", 3:"G10"}
     performance_score_init = 0
     for iter in range(1, args["epochs"] + 1):
-        val_correct_num = 0
-        val_total_num = 0
-        # get result after training
         train_loss, train_overall_acc, train_groups_acc = train(train_loader, model,loss_func, optimizer,scaler, args)
         val_loss, val_overall_acc, val_groups_acc = val(val_loader, model, loss_func, args)
-        # val_groups_acc_dict[groups[i]] = val_acc
-        # val_correct_num += val_correct_num_per_group
-        # val_total_num += val_total_num_per_group
         for i in range(4):
             print(f'Epoch {iter}: group '+nums2groups[i]+f' val acc: {val_groups_acc[i]}')
             writer.add_scalars("groups acc/" + "acc of " + nums2groups[i], {"train_acc": train_groups_acc[i],
                                                                            "val_acc": val_groups_acc[i]}, iter)
-            # writer.add_scalars("groups loss/" + "loss of " + nums2groups[i],
-            #                        {"train_loss": train_loss / train_total_num_per_group,
-            #                         "val_loss": val_loss / val_total_num_per_group}, iter)
+
         print(f'Epoch {iter}: overall acc: {val_overall_acc}')
         writer.add_scalars("loss/" + "overall_loss", {"train_loss": train_loss, "val_loss": val_loss}, iter)
         lr_scheduler.step()
-        # overall_acc = val_correct_num / val_total_num
-        # print(f"Epoch {iter}, Overall_Acc: {overall_acc}")
         abs_difference = 0
         minority_acc = val_groups_acc[3]  # minority group: G10
         for group_acc in val_groups_acc:
