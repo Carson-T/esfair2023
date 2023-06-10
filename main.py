@@ -65,9 +65,9 @@ def main(args, model):
     ])
 
     train_loader = DataLoader(MyDataset(args["train_path"], train_transform), batch_size=args["batch_size"],
-                              shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
+                              shuffle=True, num_workers=args["num_workers"], pin_memory=False, drop_last=True)
     val_loader = DataLoader(MyDataset(args["val_path"], val_transform), batch_size=args["batch_size"],
-                            shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
+                            shuffle=True, num_workers=args["num_workers"], pin_memory=False, drop_last=True)
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model, device_ids=args["device_ids"])
     model.to(args["device"])
@@ -141,9 +141,12 @@ def main(args, model):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    pretrained_model = timm.create_model("resnet101d", pretrained=True)
+    pretrained_model = timm.create_model(args["backbone"], pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
-    model = resnet50(pretrained_model, args["num_classes"])
+    if "resnet" in args["backbone"]:
+        model = resnet(pretrained_model, args["num_classes"])
+    elif "efficientnet" in args["backbone"]:
+        model = efficientnet(pretrained_model, args["num_classes"])
     main(args, model)
     with open(args["log_dir"] + "/parameters.json", "w+") as f:
         json.dump(args, f)
