@@ -1,17 +1,6 @@
 import torch
 from torch.cuda.amp import autocast
 from tqdm import *
-#calculate the number of correct predictions
-# def num_correct_pred(output, target, class_num=None):
-#     if class_num != None:
-#         mask = (target == class_num)
-#         output = output[mask]
-#         target = target[mask]
-#
-#     _, pred = torch.max(output, dim=1)
-#     correct_predictions = torch.sum(pred == target).item()
-#
-#     return correct_predictions
 
 #training
 def train(train_loader, model, criterion, optimizer, scaler, args):
@@ -26,18 +15,28 @@ def train(train_loader, model, criterion, optimizer, scaler, args):
         with autocast():
             output = model(images)
             loss = criterion(output, targets)
-        _, pred = torch.max(output, dim=1)
+        _, preds = torch.max(output, dim=1)
         training_loss += loss.item()
-        correct = (pred == targets)
-        for i in range(4):
-            correct_per_g = torch.index_select(correct, 0, torch.nonzero(groups == i).squeeze())
-            total_nums_per_g[i] += correct_per_g.shape[0]
-            correct_nums_per_g[i] += torch.sum(correct_per_g).item()
+        if i == 0:
+            all_preds = preds
+            all_targets = targets
+            all_groups = groups
+        else:
+            all_preds = torch.cat((all_preds, preds))
+            all_targets = torch.cat((all_targets, targets))
+            all_groups = torch.cat((all_groups, groups))
 
         optimizer.zero_grad()
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
+
+    correct = (all_preds == all_targets)
+    for i in range(4):
+        correct_per_g = torch.index_select(correct, 0, torch.nonzero(all_groups == i).squeeze())
+        total_nums_per_g[i] = correct_per_g.shape[0]
+        correct_nums_per_g[i] = torch.sum(correct_per_g).item()
+
     print(total_nums_per_g)
     groups_acc = torch.div(correct_nums_per_g, total_nums_per_g)
     overall_acc = torch.sum(correct_nums_per_g) / torch.sum(total_nums_per_g) #calculate the overall accuracy
@@ -56,17 +55,25 @@ def val(val_loader, model, criterion, args):
             # with autocast():
             output = model(images)
             loss = criterion(output, targets)
-            _, pred = torch.max(output, dim=1)
+            _, preds = torch.max(output, dim=1)
             val_loss += loss.item()
-            correct = (pred == targets)
-            for i in range(4):
-                correct_per_g = torch.index_select(correct, 0, torch.nonzero(groups == i).squeeze())
-                total_nums_per_g[i] += correct_per_g.shape[0]
-                correct_nums_per_g[i] += torch.sum(correct_per_g).item()
+            if i == 0:
+                all_preds = preds
+                all_targets = targets
+                all_groups = groups
+            else:
+                all_preds = torch.cat((all_preds,preds))
+                all_targets = torch.cat((all_targets,targets))
+                all_groups = torch.cat((all_groups,groups))
+        correct = (all_preds == all_targets)
+        for i in range(4):
+            correct_per_g = torch.index_select(correct, 0, torch.nonzero(all_groups == i).squeeze())
+            total_nums_per_g[i] = correct_per_g.shape[0]
+            correct_nums_per_g[i] = torch.sum(correct_per_g).item()
 
     groups_acc = torch.div(correct_nums_per_g, total_nums_per_g)
     overall_acc = torch.sum(correct_nums_per_g) / torch.sum(total_nums_per_g)  # calculate the overall accuracy
-    return val_loss/torch.sum(total_nums_per_g), overall_acc, groups_acc
+    return val_loss/torch.sum(total_nums_per_g), overall_acc, groups_acc, all_preds, all_targets
 
 
 

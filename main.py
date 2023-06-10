@@ -16,6 +16,7 @@ from argparser import args_parser
 from model import *
 from utils.initialize import *
 from utils.FocalLoss import FocalLoss
+from utils.confusion_matrix import plot_matrix
 
 
 def set_seed(seed=2023):
@@ -98,19 +99,20 @@ def main(args, model):
                                                                   factor=0.5, patience=10, verbose=True,
                                                                   min_lr=args["min_lr_ratio"] * args["lr"])
 
-    nums2groups = {0:"G6", 1:"G7", 2:"G8", 3:"G10"}
+    nums2groups = {0: "G6", 1: "G7", 2: "G8", 3: "G10"}
     performance_score_init = 0
     for iter in range(1, args["epochs"] + 1):
-        train_loss, train_overall_acc, train_groups_acc = train(train_loader, model,loss_func, optimizer,scaler, args)
-        val_loss, val_overall_acc, val_groups_acc = val(val_loader, model, loss_func, args)
+        train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler, args)
+        val_loss, val_overall_acc, val_groups_acc, all_preds, all_targets = val(val_loader, model, loss_func, args)
         for i in range(4):
-            print(f'Epoch {iter}: group '+nums2groups[i]+f' val acc: {val_groups_acc[i]}')
+            print(f'Epoch {iter}: group ' + nums2groups[i] + f' val acc: {val_groups_acc[i]}')
             writer.add_scalars("groups acc/" + "acc of " + nums2groups[i], {"train_acc": train_groups_acc[i],
-                                                                           "val_acc": val_groups_acc[i]}, iter)
+                                                                            "val_acc": val_groups_acc[i]}, iter)
 
         print(f'Epoch {iter}: overall acc: {val_overall_acc}')
         writer.add_scalars("loss/" + "overall_loss", {"train_loss": train_loss, "val_loss": val_loss}, iter)
         lr_scheduler.step()
+
         abs_difference = 0
         minority_acc = val_groups_acc[3]  # minority group: G10
         for group_acc in val_groups_acc:
@@ -126,10 +128,13 @@ def main(args, model):
         print(f"Epoch {iter}, Accuracy score: {acc_score}")
         print(f"Epoch {iter}, Performance score: {performance_score}")
         writer.add_scalars("overall",
-                           {"overall_acc": val_overall_acc, "fairness": fairness, "performance_score": performance_score},
+                           {"overall_acc": val_overall_acc, "fairness": fairness,
+                            "performance_score": performance_score},
                            iter)
         if performance_score > performance_score_init:
             performance_score_init = performance_score
+            plot_matrix(all_targets, all_preds, [0, 1, 2, 3, 4, 5], args["log_dir"] + "/confusion_matrix.jpg",
+                        ['BCC', 'BKL', 'MEL', 'NV', 'unknown', 'VASC'])
             torch.save(model.state_dict(), args["saved_path"] + "/" + args["model_name"] + ".pth")
 
 
