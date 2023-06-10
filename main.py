@@ -47,8 +47,8 @@ def main(args, model):
     elif args["init"] == "kaiming":
         model.apply(kaiming)
 
-    if args["optim"] == "Adam":
-        optimizer = torch.optim.Adam(model.parameters(), lr=args["lr"])
+    if args["optim"] == "AdamW":
+        optimizer = torch.optim.AdamW(model.parameters(), lr=args["lr"], weight_decay=args["weight_decay"])
     elif args["optim"] == "SGD":
         optimizer = torch.optim.SGD(model.parameters(), lr=args["lr"], momentum=0.9, weight_decay=args["weight_decay"])
 
