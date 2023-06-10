@@ -21,7 +21,7 @@ def args_parser():
     parser.add_argument('--init', default="xavier")
     parser.add_argument('--lr_scheduler', default="Warm-up-Cosine-Annealing")
     parser.add_argument('--model_name',  default="resnet50-fp16-server-mixed-v1")
-    parser.add_argument('--train_path', default=".../preprocessed_data/TrainingSet")
+    parser.add_argument('--train_path', default="../preprocessed_data/TrainingSet")
     parser.add_argument('--val_path',  default="../preprocessed_data/ValSet")
     parser.add_argument('--saved_path', default='../saved_model')
     parser.add_argument('--spd_para', type=float, default=0.2)
