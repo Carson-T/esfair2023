@@ -10,8 +10,8 @@ import timm
 import albumentations
 from albumentations import pytorch as AT
 from torch.utils.tensorboard import SummaryWriter
-from train_mixed import *
-from dataset_mixed import MyDataset
+from train import *
+from dataset import MyDataset
 from argparser import args_parser
 from model import *
 from utils.initialize import *
