@@ -38,9 +38,10 @@ def train(train_loader, model, criterion, optimizer, scaler, args):
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
+    print(total_nums_per_g)
     groups_acc = torch.div(correct_nums_per_g, total_nums_per_g)
     overall_acc = torch.sum(correct_nums_per_g) / torch.sum(total_nums_per_g) #calculate the overall accuracy
-    return training_loss, overall_acc, groups_acc
+    return training_loss/torch.sum(total_nums_per_g), overall_acc, groups_acc
 
 def val(val_loader, model, criterion, args):
     model.eval()
@@ -65,7 +66,7 @@ def val(val_loader, model, criterion, args):
 
     groups_acc = torch.div(correct_nums_per_g, total_nums_per_g)
     overall_acc = torch.sum(correct_nums_per_g) / torch.sum(total_nums_per_g)  # calculate the overall accuracy
-    return val_loss, overall_acc, groups_acc
+    return val_loss/torch.sum(total_nums_per_g), overall_acc, groups_acc
 
 
 

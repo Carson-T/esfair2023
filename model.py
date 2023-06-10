@@ -11,7 +11,7 @@ class resnet50(nn.Module):
         # nn.BatchNorm1d(1024),
         # nn.ReLU(),
         # nn.Linear(1024,512),
-        nn.BatchNorm1d(512),
+        # nn.BatchNorm1d(512),
         nn.ReLU(),
         nn.Linear(512,num_classes)
     )
