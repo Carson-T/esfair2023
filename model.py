@@ -41,9 +41,9 @@ class efficientnet(nn.Module):
         output = self.pretrained_model(x)
         return output
 
-class convnext(nn.Module):
+class myconvnext(nn.Module):
     def __init__(self,pretrained_model,num_classes):
-        super(convnext,self).__init__()
+        super(myconvnext,self).__init__()
         self.pretrained_model = pretrained_model
         self.classifier = nn.Sequential(
             nn.Linear(self.pretrained_model.head.in_features,512),

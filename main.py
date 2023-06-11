@@ -120,7 +120,7 @@ if __name__ == '__main__':
     elif "efficientnet" in args["backbone"]:
         model = efficientnet(pretrained_model, args["num_classes"])
     elif "convnext" in args["backbone"]:
-        model = convnext(pretrained_model, args["num_classes"])
+        model = myconvnext(pretrained_model, args["num_classes"])
     main(args, model)
     with open(args["log_dir"] + "/parameters.json", "w+") as f:
         json.dump(args, f)
