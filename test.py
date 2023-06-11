@@ -1,10 +1,11 @@
+import timm
 import torch
 import albumentations
 from torch.utils.data import DataLoader
 from dataset import MyDataset
 from albumentations import pytorch as AT
 from torchvision import models
-from model import resnet
+from model import *
 from tqdm import tqdm
 
 
@@ -48,11 +49,11 @@ if __name__ == '__main__':
     ])
     val_loader = DataLoader(MyDataset("../preprocessed_data/ValSet", val_transform), batch_size=4,
                             shuffle=True, num_workers=2, pin_memory=True, drop_last=False)
-    pretrained_model = models.resnet101(pretrained=True)
+    pretrained_model = timm.create_model("efficientnet_b5",pretrained=True)
     model = resnet(pretrained_model, 6)
 
 
-    model.load_state_dict(torch.load('../saved_model/resnet101-fp16-cloud-mixed-v1.pth',map_location=device))
+    model.load_state_dict(torch.load('../saved_model/effnetb5-fp16-server-mixed-v1.pth',map_location=device))
     model.to(device)
 
     _, overall_acc, groups_acc, _, _ = test(val_loader,model,device)
