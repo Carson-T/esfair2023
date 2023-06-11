@@ -20,13 +20,13 @@ def args_parser():
     parser.add_argument('--loss_func', default="CEloss")
     parser.add_argument('--init', default="xavier")
     parser.add_argument('--lr_scheduler', default="Warm-up-Cosine-Annealing")
-    parser.add_argument('--backbone', default="convnext_tiny")
-    parser.add_argument('--model_name',  default="convnext_t-fp16-server-mixed-v1")
+    parser.add_argument('--backbone', default="efficientnetv2_rw_s")
+    parser.add_argument('--model_name',  default="effnetv2-fp16-server-mixed-v1")
     parser.add_argument('--train_path', default="../preprocessed_data/TrainingSet")
     parser.add_argument('--val_path',  default="../preprocessed_data/ValSet")
-    parser.add_argument('--saved_path', default='../saved_model/convnext')
+    parser.add_argument('--saved_path', default='../saved_model/efficientNet')
     parser.add_argument('--spd_para', type=float, default=0.2)
-    parser.add_argument('--log_dir', default="./log/convnext/convnext_t-fp16-server-mixed-v1")
+    parser.add_argument('--log_dir', default="./log/efficientNet/effnetv2-fp16-server-mixed-v1")
 
     args, _ = parser.parse_known_args()
     return args
