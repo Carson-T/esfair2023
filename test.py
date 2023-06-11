@@ -14,11 +14,12 @@ def test(val_loader, model, device):
     correct_nums_per_g = torch.zeros(4)
     total_nums_per_g = torch.zeros(4)
     val_loss = 0.0
+    model=model.half()
     with torch.no_grad():
         for i, (images, targets, groups) in enumerate(tqdm(val_loader)):
-            groups = groups.to(device)
-            images = images.to(device)
-            targets = targets.to(device)
+            groups = groups.to(device).half()
+            images = images.to(device).half()
+            targets = targets.to(device).half()
             output = model(images)
             _, preds = torch.max(output, dim=1)
             if i == 0:
@@ -49,14 +50,15 @@ if __name__ == '__main__':
     ])
     val_loader = DataLoader(MyDataset("../preprocessed_data/ValSet", val_transform), batch_size=4,
                             shuffle=True, num_workers=2, pin_memory=True, drop_last=False)
-    pretrained_model = timm.create_model("efficientnet_b5",pretrained=True)
+    #pretrained_model = timm.create_model("efficientnet_b5",pretrained=False)
+    pretrained_model = models.resnet101(pretrained=False)
     model = resnet(pretrained_model, 6)
+  
 
-
-    model.load_state_dict(torch.load('../saved_model/effnetb5-fp16-server-mixed-v1.pth',map_location=device))
+    model.load_state_dict(torch.load("../saved_model/resnet101-fp16-cloud-mixed-v1.pth",map_location=device))
     model.to(device)
-
     _, overall_acc, groups_acc, _, _ = test(val_loader,model,device)
+    print(overall_acc,groups_acc)
 
 
     # torch.onnx.export(model, img, "./onnx/resnet50-v1.onnx")
