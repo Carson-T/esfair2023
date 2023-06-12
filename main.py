@@ -16,7 +16,6 @@ from utils.initialize import *
 from utils.FocalLoss import FocalLoss
 from utils.confusion_matrix import plot_matrix
 from utils.transform import transform
-import models.convnext
 
 def set_seed(seed=2023):
     random.seed(seed)
