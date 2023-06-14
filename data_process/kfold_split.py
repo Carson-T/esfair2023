@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedKFold
 
 classes = ['BCC', 'BKL', 'MEL', 'NV', 'unknown', 'VASC']  # label dictionary
 G = ["G6", "G7", "G8", "G10"]
-path = r"..\..\preprocessed_data\TrainingSet"
+path = "../../preprocessed_data/TrainingSet"
 kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=2023)
 
 img_paths = []
