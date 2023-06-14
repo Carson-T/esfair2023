@@ -31,12 +31,11 @@ def set_seed(seed=2023):
 def main(args, model):
     writer = SummaryWriter(log_dir=args["log_dir"])
     scaler = GradScaler()
-
     train_transform, val_transform = transform(args)
 
-    train_loader = DataLoader(MyDataset(args["train_path"], train_transform), batch_size=args["batch_size"],
+    train_loader = DataLoader(MyDataset(args["train_csv_path"], train_transform), batch_size=args["batch_size"],
                               shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
-    val_loader = DataLoader(MyDataset(args["val_path"], val_transform), batch_size=args["batch_size"],
+    val_loader = DataLoader(MyDataset(args["val_csv_path"], val_transform), batch_size=args["batch_size"],
                             shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model, device_ids=args["device_ids"])
@@ -80,7 +79,7 @@ def main(args, model):
             writer.add_scalars("groups acc/" + "acc of " + nums2groups[i], {"train_acc": train_groups_acc[i],
                                                                             "val_acc": val_groups_acc[i]}, iter)
         print(f'Epoch {iter}: train overall acc: {train_overall_acc}')
-        print(f'Epoch {iter}: cal overall acc: {val_overall_acc}')
+        print(f'Epoch {iter}: val overall acc: {val_overall_acc}')
         writer.add_scalars("loss/" + "overall_loss", {"train_loss": train_loss, "val_loss": val_loss}, iter)
         lr_scheduler.step()
 

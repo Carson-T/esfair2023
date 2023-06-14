@@ -3,8 +3,8 @@ import os
 import shutil
 groups = ["G6","G7","G8","G10"]
 classes = ["BCC","BKL","MEL","NV","unknown","VASC"]
-path = "/data33/23/jiantao/esfair/data/TrainingSet"
-test_path = "/data33/23/jiantao/esfair/data/ValSet"
+path = "../../data/TrainingSet"
+test_path = "../../data/ValSet"
 for i in range(4):
     print(i)
     path_per_group = os.path.join(path,groups[i])
