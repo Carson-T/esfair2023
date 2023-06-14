@@ -5,7 +5,7 @@ from sklearn.model_selection import StratifiedKFold
 
 classes = ['BCC', 'BKL', 'MEL', 'NV', 'unknown', 'VASC']  # label dictionary
 G = ["G6", "G7", "G8", "G10"]
-path = "../../preprocessed_data/TrainingSet"
+path = "../../data/TrainingSet"
 kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=2023)
 
 img_paths = []
@@ -38,8 +38,8 @@ for k, (train_idx, val_idx) in enumerate(kf.split(img_paths, labels)):
     train_df.insert(loc=len(train_df.columns), column="path", value=train_path)
     train_df.insert(loc=len(train_df.columns), column="label", value=train_labels)
     train_df.insert(loc=len(train_df.columns), column="group", value=train_groups)
-    train_df.to_csv(f"../../preprocessed_data/fold{k + 1}_train.csv", index=False)
+    train_df.to_csv(f"../../data/fold{k + 1}_train.csv", index=False)
     val_df.insert(loc=len(val_df.columns), column="path", value=val_path)
     val_df.insert(loc=len(val_df.columns), column="label", value=val_labels)
     val_df.insert(loc=len(val_df.columns), column="group", value=val_groups)
-    val_df.to_csv(f"../../preprocessed_data/fold{k + 1}_val.csv", index=False)
+    val_df.to_csv(f"../../data/fold{k + 1}_val.csv", index=False)
