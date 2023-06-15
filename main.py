@@ -16,6 +16,7 @@ from utils.initialize import *
 from utils.FocalLoss import FocalLoss
 from utils.confusion_matrix import plot_matrix
 from utils.transform import transform
+import models.inceptionnext
 
 def set_seed(seed=2023):
     random.seed(seed)
@@ -119,6 +120,8 @@ if __name__ == '__main__':
         model = efficientnet(pretrained_model, args["num_classes"])
     elif "convnext" in args["backbone"]:
         model = myconvnext(pretrained_model, args["num_classes"])
+    elif "inceptionnext" in args["backbone"]:
+        model = InceptionNext(pretrained_model, args["num_classes"])
     main(args, model)
     with open(args["log_dir"] + "/parameters.json", "w+") as f:
         json.dump(args, f)
