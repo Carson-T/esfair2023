@@ -79,7 +79,7 @@ class InceptionNext(nn.Module):
             nn.ReLU(),
             nn.Linear(512, num_classes)
         )
-        self.pretrained_model.head.fc = self.classifier
+        self.pretrained_model.head.fc2 = self.classifier
 
     def forward(self, x):
         output = self.pretrained_model(x)
