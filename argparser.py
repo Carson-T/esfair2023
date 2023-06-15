@@ -23,7 +23,7 @@ def args_parser():
     parser.add_argument('--backbone', default="convnext_tiny.fb_in1k")
     parser.add_argument('--model_name',  default="convnext_t-fp16-server-mixed-v1")
     parser.add_argument('--train_csv_path', default="../preprocessed_data/fold1_train.csv")
-    parser.add_argument('--val_scv_path',  default="../preprocessed_data/fold1_val.csv")
+    parser.add_argument('--val_csv_path',  default="../preprocessed_data/fold1_val.csv")
     parser.add_argument('--saved_path', default='../saved_model/convnext')
     parser.add_argument('--spd_para', type=float, default=0.2)
     parser.add_argument('--log_dir', default="./log/convnext/convnext_t-fp16-server-mixed-v1")
