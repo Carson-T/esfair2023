@@ -1,10 +1,13 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn import metrics
+
 # 相关库
 
 def plot_matrix(y_true, y_pred, labels_name, savepath, axis_labels=None):
 # 利用sklearn中的函数生成混淆矩阵并归一化
+    matplotlib.use('agg')
     cm = metrics.confusion_matrix(y_true, y_pred, labels=labels_name, sample_weight=None)  # 生成混淆矩阵
     # cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]  # 归一化
 
