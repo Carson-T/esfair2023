@@ -14,13 +14,11 @@ def transform(args):
             albumentations.GaussianBlur(blur_limit=(1,5)),
             albumentations.GaussNoise(var_limit=(5.0, 30.0)),
         ], p=0.8),
-
         albumentations.OneOf([
-            albumentations.OpticalDistortion(distort_limit=1.0),
+            albumentations.OpticalDistortion(distort_limit=1.0),       #光学畸变
             albumentations.GridDistortion(num_steps=5, distort_limit=1.),
-            albumentations.ElasticTransform(alpha=3),
+            albumentations.ElasticTransform(alpha=3),  #弹性变换
         ], p=0.8),
-
         albumentations.CLAHE(clip_limit=1, p=0.5),
         albumentations.HueSaturationValue(hue_shift_limit=10, sat_shift_limit=20, val_shift_limit=10, p=0.5),
         albumentations.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=0.5),
