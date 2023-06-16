@@ -49,14 +49,14 @@ class myconvnext(nn.Module):
         super(myconvnext, self).__init__()
         self.pretrained_model = pretrained_model
         self.classifier = nn.Sequential(
-            nn.Linear(self.pretrained_model.head.fc.in_features, 256),
-            nn.Dropout(0.4),
+            nn.Linear(self.pretrained_model.head.fc.in_features, num_classes),
+            # nn.Dropout(0.4),
             # nn.BatchNorm1d(1024),
             # nn.ReLU(),
             # nn.Linear(1024,512),
             # nn.BatchNorm1d(512),
-            nn.ReLU(),
-            nn.Linear(256, num_classes)
+            # nn.ReLU(),
+            # nn.Linear(256, num_classes)
         )
         self.pretrained_model.head.fc = self.classifier
 
@@ -70,14 +70,14 @@ class InceptionNext(nn.Module):
         super(InceptionNext, self).__init__()
         self.pretrained_model = pretrained_model
         self.classifier = nn.Sequential(
-            nn.Linear(self.pretrained_model.head.fc2.in_features, 512),
-            nn.Dropout(0.3),
+            nn.Linear(self.pretrained_model.head.fc2.in_features, num_classes),
+            # nn.Dropout(0.3),
             # nn.BatchNorm1d(1024),
             # nn.ReLU(),
             # nn.Linear(1024,512),
             # nn.BatchNorm1d(512),
-            nn.ReLU(),
-            nn.Linear(512, num_classes)
+            # nn.ReLU(),
+            # nn.Linear(512, num_classes)
         )
         self.pretrained_model.head.fc2 = self.classifier
 
