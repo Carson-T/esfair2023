@@ -128,7 +128,8 @@ def main(args, model):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    pretrained_model = timm.create_model(args["backbone"], pretrained=True)
+    pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"],
+                                         drop_path_rate=args["drop_path_rate"], pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
     if "resnet" in args["backbone"]:
         model = resnet(pretrained_model, args["num_classes"])
