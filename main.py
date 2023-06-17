@@ -16,7 +16,9 @@ from utils.initialize import *
 from utils.FocalLoss import FocalLoss
 from utils.confusion_matrix import plot_matrix
 from utils.transform import transform
+from utils.save_checkpoints import save_ckpt
 import models.inceptionnext
+
 
 def set_seed(seed=2023):
     random.seed(seed)
@@ -30,7 +32,7 @@ def set_seed(seed=2023):
 
 
 def main(args, model):
-    writer = SummaryWriter(log_dir=args["log_dir"])
+    writer = SummaryWriter(log_dir=args["log_dir"] + "/" + args["model_name"])
     scaler = GradScaler()
     train_transform, val_transform = transform(args)
 
@@ -71,8 +73,18 @@ def main(args, model):
                                                                   min_lr=args["min_lr_ratio"] * args["lr"])
 
     nums2groups = {0: "G6", 1: "G7", 2: "G8", 3: "G10"}
-    performance_score_init = 0
-    for iter in range(1, args["epochs"] + 1):
+    performance_score_best = 0
+    init_epoch = 1
+
+    if args["resume"] != "":
+        checkpoint = torch.load(args["resume"])
+        model.load_state_dict(checkpoint["model_state"])
+        optimizer.load_state_dict(checkpoint["optimizer"])
+        lr_scheduler.load_state_dict(checkpoint["lr_scheduler"])
+        init_epoch = checkpoint["epoch"] + 1
+        performance_score_best = checkpoint["best_performance"]
+
+    for iter in range(init_epoch, args["epochs"] + 1):
         train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler, args)
         val_loss, val_overall_acc, val_groups_acc, all_preds, all_targets = val(val_loader, model, loss_func, args)
         for i in range(4):
@@ -102,11 +114,15 @@ def main(args, model):
                            {"overall_acc": val_overall_acc, "fairness": fairness,
                             "performance_score": performance_score},
                            iter)
-        if performance_score > performance_score_init:
-            performance_score_init = performance_score
-            plot_matrix(all_targets.cpu(), all_preds.cpu(), [0, 1, 2, 3, 4, 5], args["log_dir"] + "/confusion_matrix.jpg",
+        if performance_score > performance_score_best:
+            performance_score_best = performance_score
+            plot_matrix(all_targets.cpu(), all_preds.cpu(), [0, 1, 2, 3, 4, 5],
+                        args["log_dir"] + "/" + args["model_name"] + "/confusion_matrix.jpg",
                         ['BCC', 'BKL', 'MEL', 'NV', 'unknown', 'VASC'])
             torch.save(model.state_dict(), args["saved_path"] + "/" + args["model_name"] + ".pth")
+
+        if iter % 10 == 0:
+            save_ckpt(args, model, optimizer, lr_scheduler, iter, performance_score_best)
 
 
 if __name__ == '__main__':
@@ -123,5 +139,5 @@ if __name__ == '__main__':
     elif "inceptionnext" in args["backbone"]:
         model = InceptionNext(pretrained_model, args["num_classes"])
     main(args, model)
-    with open(args["log_dir"] + "/parameters.json", "w+") as f:
+    with open(args["log_dir"] + "/" + args["model_name"] + "/parameters.json", "w+") as f:
         json.dump(args, f)

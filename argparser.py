@@ -17,6 +17,7 @@ def args_parser():
     parser.add_argument('--num_workers', type=int, default=8)
     parser.add_argument('--is_multiscale', type=int, default=0)
     parser.add_argument('--is_parallel', type=int, default=1)
+    parser.add_argument('--resume', default="")
     parser.add_argument('--device_ids', type=list, default=[0, 1])
     parser.add_argument('--optim', default="AdamW")
     parser.add_argument('--loss_func', default="CEloss")
@@ -27,8 +28,9 @@ def args_parser():
     parser.add_argument('--train_csv_path', default="../preprocessed_data/fold1_train.csv")
     parser.add_argument('--val_csv_path',  default="../preprocessed_data/fold1_val.csv")
     parser.add_argument('--saved_path', default='../saved_model/inceptionnext')
+    parser.add_argument('--ckpt_path', default='../checkpoints/inceptionnext')
     parser.add_argument('--spd_para', type=float, default=0.2)
-    parser.add_argument('--log_dir', default="./log/inceptionnext/incepnext_t-fp16-server-mixed-v2")
+    parser.add_argument('--log_dir', default="./log/inceptionnext")
 
     args, _ = parser.parse_known_args()
     return args
