@@ -14,6 +14,7 @@ from argparser import args_parser
 from model import *
 from utils.initialize import *
 from utils.FocalLoss import FocalLoss
+from utils.LabelSmooth import LabelSmoothLoss
 from utils.confusion_matrix import plot_matrix
 from utils.transform import transform
 from utils.save_checkpoints import save_ckpt
@@ -53,12 +54,14 @@ def main(args, model, groups_params):
     elif args["optim"] == "SGD":
         optimizer = torch.optim.SGD(groups_params, momentum=0.9, weight_decay=args["weight_decay"])
 
+    weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49])
     if args["loss_func"] == "CEloss":
         # weight = torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])
-        weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49])
         loss_func = torch.nn.CrossEntropyLoss(weight).to(args["device"])
     elif args["loss_func"] == "FocalLoss":
-        loss_func = FocalLoss(alpha=[0.033, 0.041, 0.026, 0.02, 0.008, 0.872]).to(args["device"])
+        loss_func = FocalLoss(weight).to(args["device"])
+    elif args["loss_func"] == "LabelSmoothLoss":
+        loss_func = LabelSmoothLoss(weight)
 
     if args["lr_scheduler"] == "Warm-up-Cosine-Annealing":
         init_ratio, warm_up_steps, min_lr_ratio, max_steps = args["init_ratio"], args["epochs"] / 10, args[
