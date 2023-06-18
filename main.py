@@ -31,7 +31,7 @@ def set_seed(seed=2023):
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 
-def main(args, model):
+def main(args, model, groups_params):
     writer = SummaryWriter(log_dir=args["log_dir"] + "/" + args["model_name"])
     scaler = GradScaler()
     train_transform, val_transform = transform(args)
@@ -49,9 +49,9 @@ def main(args, model):
         model.apply(kaiming)
 
     if args["optim"] == "AdamW":
-        optimizer = torch.optim.AdamW(model.parameters(), lr=args["lr"], weight_decay=args["weight_decay"])
+        optimizer = torch.optim.AdamW(groups_params, weight_decay=args["weight_decay"])
     elif args["optim"] == "SGD":
-        optimizer = torch.optim.SGD(model.parameters(), lr=args["lr"], momentum=0.9, weight_decay=args["weight_decay"])
+        optimizer = torch.optim.SGD(groups_params, momentum=0.9, weight_decay=args["weight_decay"])
 
     if args["loss_func"] == "CEloss":
         # weight = torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])
@@ -131,14 +131,34 @@ if __name__ == '__main__':
     pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"],
                                          drop_path_rate=args["drop_path_rate"], pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
+
     if "resnet" in args["backbone"]:
         model = resnet(pretrained_model, args["num_classes"])
+        base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.fc.parameters())),
+                             model.parameters())
+        groups_params = [{"params": base_params, "lr": args["lr"] / 10},
+                         {"params": model.pretrained_model.fc.parameters(), "lr": args["lr"]}]
     elif "efficientnet" in args["backbone"]:
         model = efficientnet(pretrained_model, args["num_classes"])
+        base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.classifier.parameters())),
+                             model.parameters())
+        groups_params = [{"params": base_params, "lr": args["lr"] / 10},
+                         {"params": model.pretrained_model.classifier.parameters(), "lr": args["lr"]}]
+
     elif "convnext" in args["backbone"]:
         model = myconvnext(pretrained_model, args["num_classes"])
+        base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.head.parameters())),
+                             model.parameters())
+        groups_params = [{"params": base_params, "lr": args["lr"]/10},
+                         {"params": model.pretrained_model.head.parameters(), "lr": args["lr"]}]
+
     elif "inceptionnext" in args["backbone"]:
         model = InceptionNext(pretrained_model, args["num_classes"])
-    main(args, model)
+        base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.head.parameters())),
+                             model.parameters())
+        groups_params = [{"params": base_params, "lr": args["lr"] / 10},
+                         {"params": model.pretrained_model.head.parameters(), "lr": args["lr"]}]
+
+    main(args, model, groups_params)
     with open(args["log_dir"] + "/" + args["model_name"] + "/parameters.json", "w+") as f:
         json.dump(args, f)
