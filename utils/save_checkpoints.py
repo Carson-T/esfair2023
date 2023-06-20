@@ -10,7 +10,7 @@ def save_ckpt(args, model, optimizer, lr_scheduler, epoch, best_performance):
         best_performance=best_performance,
     )
 
-    torch.save(state, os.path.join(args["ckpt_path"], args["model_name"]+"pth.tar"))
+    torch.save(state, os.path.join(args["ckpt_path"], args["model_name"]+".pth.tar"))
 
 
 # def load_ckpt(args, model, optimizer, lr_cheduler, epoch)

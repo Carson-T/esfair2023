@@ -41,6 +41,11 @@ def main(args, model, groups_params):
                               shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
     val_loader = DataLoader(MyDataset(args["val_csv_path"], val_transform), batch_size=args["batch_size"],
                             shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
+
+    if args["use_external"] == 1:
+        external_loader = DataLoader(MyDataset(args["external_csv_path"], train_transform, is_external=True), batch_size=args["batch_size"],
+                              shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
+
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model, device_ids=args["device_ids"])
     model.to(args["device"])
@@ -54,7 +59,7 @@ def main(args, model, groups_params):
     elif args["optim"] == "SGD":
         optimizer = torch.optim.SGD(groups_params, momentum=0.9, weight_decay=args["weight_decay"])
 
-    weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49])
+    weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49]).to(args["device"])
     if args["loss_func"] == "CEloss":
         # weight = torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])
         loss_func = torch.nn.CrossEntropyLoss(weight).to(args["device"])
@@ -88,6 +93,8 @@ def main(args, model, groups_params):
         performance_score_best = checkpoint["best_performance"]
 
     for iter in range(init_epoch, args["epochs"] + 1):
+        if args["use_external"] == 1:
+            external_train(external_loader, model, loss_func, optimizer, scaler, args)
         train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler, args)
         val_loss, val_overall_acc, val_groups_acc, all_preds, all_targets = val(val_loader, model, loss_func, args)
         for i in range(4):
@@ -152,7 +159,7 @@ if __name__ == '__main__':
         model = myconvnext(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.head.parameters())),
                              model.parameters())
-        groups_params = [{"params": base_params, "lr": args["lr"]/10},
+        groups_params = [{"params": base_params, "lr": args["lr"] / 10},
                          {"params": model.pretrained_model.head.parameters(), "lr": args["lr"]}]
 
     elif "inceptionnext" in args["backbone"]:
