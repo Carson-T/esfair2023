@@ -28,7 +28,7 @@ def args_parser():
     parser.add_argument('--model_name',  default="convnextv2_n-fp16-server-mixed-v5")
     parser.add_argument('--train_csv_path', default="../preprocessed_data/fold1_train.csv")
     parser.add_argument('--val_csv_path',  default="../preprocessed_data/fold1_val.csv")
-    parser.add_argument('--val_csv_path', default="../external_data/label.csv")
+    parser.add_argument('--external_csv_path', default="../external_data/external_label.csv")
     parser.add_argument('--saved_path', default='../saved_model/convnext')
     parser.add_argument('--ckpt_path', default='../checkpoints/convnext')
     parser.add_argument('--spd_para', type=float, default=0.2)

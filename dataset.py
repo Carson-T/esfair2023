@@ -22,7 +22,7 @@ class MyDataset(Dataset):
         if self.is_external is False:
             group = self.groups[idx]
         else:
-            group = None
+            group = -1
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if self.transform:
