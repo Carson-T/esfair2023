@@ -146,28 +146,28 @@ if __name__ == '__main__':
         model = resnet(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.fc.parameters())),
                              model.parameters())
-        groups_params = [{"params": base_params, "lr": args["lr"] / 2},
-                         {"params": model.pretrained_model.fc.parameters(), "lr": args["lr"]}]
+        groups_params = [{"params": base_params, "lr": args["lr"][0]},
+                         {"params": model.pretrained_model.fc.parameters(), "lr": args["lr"][1]}]
     elif "efficientnet" in args["backbone"]:
         model = efficientnet(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.classifier.parameters())),
                              model.parameters())
-        groups_params = [{"params": base_params, "lr": args["lr"] / 2},
-                         {"params": model.pretrained_model.classifier.parameters(), "lr": args["lr"]}]
+        groups_params = [{"params": base_params, "lr": args["lr"][0]},
+                         {"params": model.pretrained_model.classifier.parameters(), "lr": args["lr"][1]}]
 
     elif "convnext" in args["backbone"]:
         model = myconvnext(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.head.parameters())),
                              model.parameters())
-        groups_params = [{"params": base_params, "lr": args["lr"] / 2},
-                         {"params": model.pretrained_model.head.parameters(), "lr": args["lr"]}]
+        groups_params = [{"params": base_params, "lr": args["lr"][0]},
+                         {"params": model.pretrained_model.head.parameters(), "lr": args["lr"][1]}]
 
     elif "inceptionnext" in args["backbone"]:
         model = InceptionNext(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.head.parameters())),
                              model.parameters())
-        groups_params = [{"params": base_params, "lr": args["lr"] / 2},
-                         {"params": model.pretrained_model.head.parameters(), "lr": args["lr"]}]
+        groups_params = [{"params": base_params, "lr": args["lr"][0]},
+                         {"params": model.pretrained_model.head.parameters(), "lr": args["lr"][1]}]
 
     main(args, model, groups_params)
     with open(args["log_dir"] + "/" + args["model_name"] + "/parameters.json", "w+") as f:
