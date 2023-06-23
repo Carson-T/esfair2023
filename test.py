@@ -11,8 +11,10 @@ from torchvision import models
 # from model import *
 from tqdm import tqdm
 import collections
-import torch.ao.quantization.quantize_fx as quantize_fx
+# import torch.ao.quantization.quantize_fx as quantize_fx
 
+
+# model
 class myconvnext(nn.Module):
     def __init__(self, pretrained_model, num_classes):
         super(myconvnext, self).__init__()
@@ -37,7 +39,7 @@ class myconvnext(nn.Module):
         # output = self.dequant(output)
         return output
 
-
+# dataset
 class MyDataset(Dataset):
     def __init__(self, csv_path, transform):
         super(MyDataset, self).__init__()
@@ -58,7 +60,7 @@ class MyDataset(Dataset):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         if self.transform:
             img = self.transform(image=img)["image"]
-        return img, label, group, img_path
+        return img, label, group
 
     def _make_dataset(self):
         data = pd.read_csv(self.csv_path)
@@ -72,26 +74,26 @@ def test(val_loader, model, device):
     correct_nums_per_g = torch.zeros(4)
     total_nums_per_g = torch.zeros(4)
     val_loss = 0.0
-    model = model
-
+    model.eval()
+    model = model.half()
     with torch.no_grad():
-        for i, (images, targets, groups, img_path) in enumerate(tqdm(val_loader)):
-            groups = groups.to(device)
-            images = images.to(device)
-            targets = targets.to(device)
-            img_path = list(img_path)
+        for i, (images, targets, groups) in enumerate(tqdm(val_loader)):
+            groups = groups.to(device).half()
+            images = images.to(device).half()
+            targets = targets.to(device).half()
+            # img_path = list(img_path)
             output = model(images)
             _, preds = torch.max(output, dim=1)
             if i == 0:
                 all_preds = preds
                 all_targets = targets
                 all_groups = groups
-                all_img_paths = img_path
+                # all_img_paths = img_path
             else:
                 all_preds = torch.cat((all_preds, preds))
                 all_targets = torch.cat((all_targets, targets))
                 all_groups = torch.cat((all_groups, groups))
-                all_img_paths = all_img_paths+img_path
+                # all_img_paths = all_img_paths+img_path
         correct = (all_preds == all_targets)
         for i in range(4):
             correct_per_g = torch.index_select(correct, 0, torch.nonzero(all_groups == i).squeeze())
@@ -100,47 +102,46 @@ def test(val_loader, model, device):
 
     groups_acc = torch.div(correct_nums_per_g, total_nums_per_g)
     overall_acc = torch.sum(correct_nums_per_g) / torch.sum(total_nums_per_g)  # calculate the overall accuracy
-    return val_loss / torch.sum(total_nums_per_g), overall_acc, groups_acc, all_preds.cpu(), all_targets.cpu(), all_groups.cpu(), all_img_paths
+
+    abs_difference = 0
+    minority_acc = groups_acc[3]  # minority group: G10
+    for group_acc in groups_acc:
+        abs_difference += abs(group_acc - minority_acc)
+    SPD = abs_difference / len(groups_acc)
+    fairness_score = ((0.2 - SPD) / 0.2)   # calculate the fairness score
+    return val_loss / torch.sum(total_nums_per_g), groups_acc, overall_acc, fairness_score
 
 
-def calibrate(model, data_loader):
-    model.eval()
-    with torch.no_grad():
-        for i, (images, targets, groups, img_path) in enumerate(tqdm(val_loader)):
-            model(images)
 
 if __name__ == '__main__':
-    device = "cpu" if torch.cuda.is_available() else "cpu"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     val_transform = albumentations.Compose([
         albumentations.Resize(480, 480),
         albumentations.Normalize(),
         AT.ToTensorV2()
     ])
-    val_loader = DataLoader(MyDataset("../preprocessed_data/fold3_val.csv", val_transform), batch_size=64,
+
+    val_loader = DataLoader(MyDataset("../preprocessed_data/fold1_val.csv", val_transform), batch_size=64,
                             shuffle=True, num_workers=8, pin_memory=True, drop_last=False)
     pretrained_model = timm.create_model("convnextv2_nano.fcmae_ft_in1k")
-    # pretrained_model = models.resnet101(pretrained=False)
     model = myconvnext(pretrained_model, 6)
     model.to(device)
-    # model = nn.DataParallel(model, device_ids=[0, 1])
-    state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-mixed-v4.pth", map_location=device)
+    state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v2.pth", map_location=device)
     new_state_dict = collections.OrderedDict()
-    for name,params in state_dict.items():
+    for name, params in state_dict.items():
         name = name[7:]
         new_state_dict[name] = params
     del state_dict
     model.load_state_dict(new_state_dict)
-    model.eval()
-
-    example_inputs = torch.randn(64,3,480,480).to(device)
-    qconfig_mapping = torch.ao.quantization.get_default_qconfig_mapping('qnnpack')
+    # example_inputs = torch.randn(64,3,480,480).to(device)
+    # qconfig_mapping = torch.ao.quantization.get_default_qconfig_mapping('qnnpack')
     # prepare
-    model_prepared = quantize_fx.prepare_fx(model, qconfig_mapping, example_inputs)
-    calibrate(model_prepared,val_loader)
-    model_int8 = quantize_fx.convert_fx(model_prepared)
+    # model_prepared = quantize_fx.prepare_fx(model, qconfig_mapping, example_inputs)
+    # calibrate(model_prepared,val_loader)
+    # model_int8 = quantize_fx.convert_fx(model_prepared)
 
-    _, overall_acc, groups_acc, all_preds, all_targets, all_groups, all_img_paths = test(val_loader, model_int8, device)
+    _, groups_acc, overall_acc, fairness_score = test(val_loader, model, device)
     print(overall_acc, groups_acc)
     # result = {"img_path":[], "group":[]}
     # for i in range(len(all_targets)):

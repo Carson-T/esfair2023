@@ -59,7 +59,11 @@ def main(args, model, groups_params):
     elif args["optim"] == "SGD":
         optimizer = torch.optim.SGD(groups_params, momentum=0.9, weight_decay=args["weight_decay"])
 
-    weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49]).to(args["device"])
+    if args["use_external"] == 1:
+        weight = 5207 * 1 / torch.tensor([1231 + 1000, 982 + 800, 1537 + 1200, 2206 + 1700, 5207, 49 + 25]).to(
+            args["device"])
+    else:
+        weight = 5207 * 1 / torch.tensor([1231, 982, 1537, 2206, 5207, 49]).to(args["device"])
     if args["loss_func"] == "CEloss":
         # weight = torch.tensor([0.033, 0.041, 0.026, 0.02, 0.008, 0.872])
         loss_func = torch.nn.CrossEntropyLoss(weight).to(args["device"])
