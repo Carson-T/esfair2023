@@ -4,6 +4,7 @@ import torch.backends.cudnn as cudnn
 from torchvision import models
 import os
 import json
+import collections
 import random
 import numpy as np
 import timm
@@ -96,10 +97,30 @@ def main(args, model, groups_params):
         init_epoch = checkpoint["epoch"] + 1
         performance_score_best = checkpoint["best_performance"]
 
+    if args["is_distill"] == 1:
+        teacher_model = myconvnext(timm.create_model("convnextv2_nano.fcmae_ft_in1k"), args["device"])
+        state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v3.pth", map_location=args["device"])
+        new_state_dict = collections.OrderedDict()
+        for name, params in state_dict.items():
+            if "module" in name:
+                name = name[7:]
+                new_state_dict[name] = params
+            else:
+                new_state_dict = state_dict
+                break
+        del state_dict
+        teacher_model.load_state_dict(new_state_dict)
+        teacher_model.to(args["device"])
+        teacher_model.eval()
+        soft_loss = nn.KLDivLoss(reduction="batchmean")
+
     for iter in range(init_epoch, args["epochs"] + 1):
         if args["use_external"] == 1:
             external_train(external_loader, model, loss_func, optimizer, scaler, args)
-        train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler, args)
+        if args["is_distill"] == 1:
+            train_loss, train_overall_acc, train_groups_acc = distill_train(train_loader, model, teacher_model, loss_func, soft_loss, optimizer, scaler, args)
+        else:
+            train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler, args)
         val_loss, val_overall_acc, val_groups_acc, all_preds, all_targets = val(val_loader, model, loss_func, args)
         for i in range(4):
             print(f'Epoch {iter}: group ' + nums2groups[i] + f' val acc: {val_groups_acc[i]}')

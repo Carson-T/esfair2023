@@ -25,6 +25,25 @@ class myconvnext(nn.Module):
         output = self.pretrained_model(x)
         return output
 
+class resnet(nn.Module):
+    def __init__(self, pretrained_model, num_classes):
+        super(resnet, self).__init__()
+        self.pretrained_model = pretrained_model
+        self.classifier = nn.Sequential(
+            nn.Linear(self.pretrained_model.fc.in_features, 1024),
+            # nn.Dropout(0.3),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(),
+            nn.Linear(1024,512),
+            nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Linear(512, num_classes)
+        )
+        self.pretrained_model.fc = self.classifier
+
+    def forward(self, x):
+        output = self.pretrained_model(x)
+        return output
 
 # dataset
 class MyDataset(Dataset):
@@ -105,21 +124,29 @@ if __name__ == '__main__':
         AT.ToTensorV2()
     ])
 
-    val_loader = DataLoader(MyDataset("../preprocessed_data/fold1_val.csv", val_transform), batch_size=64,
-                            shuffle=True, num_workers=8, pin_memory=True, drop_last=False)
+    val_loader = DataLoader(MyDataset("../preprocessed_data/fold1_val.csv", val_transform), batch_size=1,
+                            shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
 
+    # pretrained_model = timm.create_model("resnet50")
     pretrained_model = timm.create_model("convnextv2_nano.fcmae_ft_in1k")
+    # model = resnet(pretrained_model, 6)
     model = myconvnext(pretrained_model, 6)
-    model = model.half()
+
+    # model = model.half()
     model.to(device)
     model.eval()
 
     #load model
+    # state_dict = torch.load("../saved_model/resnet50/resnet50-v1.pth", map_location=device)
     state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v3.pth", map_location=device)
     new_state_dict = collections.OrderedDict()
     for name, params in state_dict.items():
-        name = name[7:]
-        new_state_dict[name] = params
+        if "module" in name:
+            name = name[7:]
+            new_state_dict[name] = params
+        else:
+            new_state_dict = state_dict
+            break
     del state_dict
     model.load_state_dict(new_state_dict)
 
