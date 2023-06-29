@@ -194,6 +194,13 @@ if __name__ == '__main__':
         groups_params = [{"params": base_params, "lr": args["lr"][0]},
                          {"params": model.pretrained_model.head.parameters(), "lr": args["lr"][1]}]
 
+    elif "mobilenet" in args["backbone"]:
+        model = MobileNet(pretrained_model, args["num_classes"])
+        base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.classifier.parameters())),
+                             model.parameters())
+        groups_params = [{"params": base_params, "lr": args["lr"][0]},
+                         {"params": model.pretrained_model.classifier.parameters(), "lr": args["lr"][1]}]
+
     main(args, model, groups_params)
     with open(args["log_dir"] + "/" + args["model_name"] + "/parameters.json", "w+") as f:
         json.dump(args, f)
