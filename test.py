@@ -119,12 +119,12 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
     val_transform = albumentations.Compose([
-        albumentations.Resize(480, 480),
+        albumentations.Resize(72, 72),
         albumentations.Normalize(),
         AT.ToTensorV2()
     ])
 
-    val_loader = DataLoader(MyDataset("../preprocessed_data/fold1_val.csv", val_transform), batch_size=1,
+    val_loader = DataLoader(MyDataset("../preprocessed_data/fold1_val.csv", val_transform), batch_size=64,
                             shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
 
     # pretrained_model = timm.create_model("resnet50")
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     #load model
     # state_dict = torch.load("../saved_model/resnet50/resnet50-v1.pth", map_location=device)
-    state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v3.pth", map_location=device)
+    state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v2.pth", map_location=device)
     new_state_dict = collections.OrderedDict()
     for name, params in state_dict.items():
         if "module" in name:
