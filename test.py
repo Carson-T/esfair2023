@@ -8,42 +8,8 @@ import albumentations
 from torch.utils.data import DataLoader
 from albumentations import pytorch as AT
 from tqdm import tqdm
+from model import *
 import collections
-
-
-# model
-class myconvnext(nn.Module):
-    def __init__(self, pretrained_model, num_classes):
-        super(myconvnext, self).__init__()
-        self.pretrained_model = pretrained_model
-        self.classifier = nn.Sequential(
-            nn.Linear(self.pretrained_model.head.fc.in_features, num_classes),
-        )
-        self.pretrained_model.head.fc = self.classifier
-
-    def forward(self, x):
-        output = self.pretrained_model(x)
-        return output
-
-class resnet(nn.Module):
-    def __init__(self, pretrained_model, num_classes):
-        super(resnet, self).__init__()
-        self.pretrained_model = pretrained_model
-        self.classifier = nn.Sequential(
-            nn.Linear(self.pretrained_model.fc.in_features, 1024),
-            # nn.Dropout(0.3),
-            nn.BatchNorm1d(1024),
-            nn.ReLU(),
-            nn.Linear(1024,512),
-            nn.BatchNorm1d(512),
-            nn.ReLU(),
-            nn.Linear(512, num_classes)
-        )
-        self.pretrained_model.fc = self.classifier
-
-    def forward(self, x):
-        output = self.pretrained_model(x)
-        return output
 
 # dataset
 class MyDataset(Dataset):
@@ -127,18 +93,16 @@ if __name__ == '__main__':
     val_loader = DataLoader(MyDataset("../preprocessed_data/fold1_val.csv", val_transform), batch_size=64,
                             shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
 
-    # pretrained_model = timm.create_model("resnet50")
-    pretrained_model = timm.create_model("convnextv2_nano.fcmae_ft_in1k")
-    # model = resnet(pretrained_model, 6)
-    model = myconvnext(pretrained_model, 6)
+    pretrained_model = timm.create_model("mobilenetv3_large_100.ra_in1k")  # convnextv2_nano.fcmae_ft_in1k  mobilenetv3_large_100.ra_in1k
+    # model = myconvnext(pretrained_model, 6)
+    model = MobileNet(pretrained_model, 6)
 
     # model = model.half()
     model.to(device)
     model.eval()
 
     #load model
-    # state_dict = torch.load("../saved_model/resnet50/resnet50-v1.pth", map_location=device)
-    state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v2.pth", map_location=device)
+    state_dict = torch.load("../saved_model/mobilenet/mobilenetv3_l-fp16-server-stu-v2.pth", map_location=device)
     new_state_dict = collections.OrderedDict()
     for name, params in state_dict.items():
         if "module" in name:

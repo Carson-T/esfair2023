@@ -98,8 +98,8 @@ def main(args, model, groups_params):
         performance_score_best = checkpoint["best_performance"]
 
     if args["is_distill"] == 1:
-        teacher_model = myconvnext(timm.create_model("convnextv2_nano.fcmae_ft_in1k"), args["device"])
-        state_dict = torch.load("../saved_model/convnext/convnextv2_n-fp16-server-ext-v3.pth", map_location=args["device"])
+        teacher_model = myconvnext(timm.create_model("convnextv2_nano.fcmae_ft_in1k"), args["num_classes"])
+        state_dict = torch.load(args["teacher_model"], map_location=args["device"])
         new_state_dict = collections.OrderedDict()
         for name, params in state_dict.items():
             if "module" in name:
