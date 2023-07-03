@@ -114,7 +114,7 @@ def distill_train(train_loader, student_model, teacher_model, hard_loss, soft_lo
                 F.softmax(teacher_output / args["temp"], dim=1)
             )
             loss = args["alpha"] * loss1 + (1 - args["alpha"]) * loss2
-        _, preds = torch.max(teacher_output, dim=1)
+        _, preds = torch.max(student_output, dim=1)
         training_loss += loss.item()
         if i == 0:
             all_preds = preds
