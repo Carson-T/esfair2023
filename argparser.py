@@ -31,7 +31,7 @@ def args_parser():
     parser.add_argument('--init', default="xavier")
     parser.add_argument('--lr_scheduler', default="Warm-up-Cosine-Annealing")
     parser.add_argument('--backbone', default="mobilenetv3_large_100.ra_in1k")  # convnextv2_nano.fcmae_ft_in1k  mobilenetv3_large_100.ra_in1k
-    parser.add_argument('--model_name',  default="mobilenetv3_l-fp16-server-ext-stu-v1")
+    parser.add_argument('--model_name',  default="mobilenetv3_l-fp16-server-stu-v1")
     parser.add_argument('--train_csv_path', default="../preprocessed_data/fold1_train.csv")
     parser.add_argument('--val_csv_path',  default="../preprocessed_data/fold1_val.csv")
     parser.add_argument('--external_csv_path', default="../external_data/external_label.csv")
