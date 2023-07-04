@@ -85,9 +85,9 @@ class InceptionNext(nn.Module):
         output = self.pretrained_model(x)
         return output
 
-class MobileNet(nn.Module):
+class MoGoNet(nn.Module):
     def __init__(self, pretrained_model, num_classes):
-        super(MobileNet, self).__init__()
+        super(MoGoNet, self).__init__()
         self.pretrained_model = pretrained_model
         self.classifier = nn.Sequential(
             nn.Linear(self.pretrained_model.classifier.in_features, num_classes),

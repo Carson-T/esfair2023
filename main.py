@@ -163,8 +163,11 @@ def main(args, model, groups_params):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"],
+    if args["drop_path_rate"]>0:
+        pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"],
                                          drop_path_rate=args["drop_path_rate"], pretrained=True)
+    else:
+        pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"], pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)
 
     if "resnet" in args["backbone"]:
@@ -194,8 +197,8 @@ if __name__ == '__main__':
         groups_params = [{"params": base_params, "lr": args["lr"][0]},
                          {"params": model.pretrained_model.head.parameters(), "lr": args["lr"][1]}]
 
-    elif "mobilenet" in args["backbone"]:
-        model = MobileNet(pretrained_model, args["num_classes"])
+    elif "mobilenet" or "ghostnet" in args["backbone"]:
+        model = MoGoNet(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.classifier.parameters())),
                              model.parameters())
         groups_params = [{"params": base_params, "lr": args["lr"][0]},
