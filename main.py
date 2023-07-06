@@ -198,7 +198,7 @@ if __name__ == '__main__':
                          {"params": model.pretrained_model.head.parameters(), "lr": args["lr"][1]}]
 
     elif "mobilenet" or "ghostnet" in args["backbone"]:
-        model = MoGoNet(pretrained_model, args["num_classes"])
+        model = MoGhoNet(pretrained_model, args["num_classes"])
         base_params = filter(lambda p: id(p) not in list(map(id, model.pretrained_model.classifier.parameters())),
                              model.parameters())
         groups_params = [{"params": base_params, "lr": args["lr"][0]},

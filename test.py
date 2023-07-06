@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     pretrained_model = timm.create_model("mobilenetv3_large_100.ra_in1k")  # convnextv2_nano.fcmae_ft_in1k  mobilenetv3_large_100.ra_in1k
     # model = myconvnext(pretrained_model, 6)
-    model = MobileNet(pretrained_model, 6)
+    model = MoGhoNet(pretrained_model, 6)
 
     # model = model.half()
     model.to(device)

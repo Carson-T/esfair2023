@@ -18,27 +18,27 @@ def args_parser():
 
     parser.add_argument('--is_distill', type=int, default=1)
     parser.add_argument('--teacher_model', default="../saved_model/convnext/convnextv2_n-fp16-server-ext-v7.pth")
-    parser.add_argument('--temp', type=int, default=3)
+    parser.add_argument('--temp', type=int, default=1)
     parser.add_argument('--alpha', type=float, default=0.3)
 
     parser.add_argument('--is_multiscale', type=int, default=0)
     parser.add_argument('--is_parallel', type=int, default=1)
     parser.add_argument('--use_external', type=int, default=1)
-    parser.add_argument('--resume', default="")
-    parser.add_argument('--device_ids', type=list, default=[6,7])
+    parser.add_argument('--resume', default="../checkpoints/mobilenet/mobilenetv3_s-fp16-server-stu-v1.pth.tar")
+    parser.add_argument('--device_ids', type=list, default=[5,6])
     parser.add_argument('--optim', default="AdamW")
     parser.add_argument('--loss_func', default="CEloss")
     parser.add_argument('--init', default="xavier")
     parser.add_argument('--lr_scheduler', default="Warm-up-Cosine-Annealing")
-    parser.add_argument('--backbone', default="mobilenetv3_large_100.ra_in1k")  # convnextv2_nano.fcmae_ft_in1k  mobilenetv3_large_100.ra_in1k  mobilenetv3_small_100.lamb_in1k
-    parser.add_argument('--model_name',  default="mobilenetv3_l-fp16-server-stu-v8")
+    parser.add_argument('--backbone', default="ghostnet_100.in1k")  # convnextv2_nano.fcmae_ft_in1k  mobilenetv3_large_100.ra_in1k  mobilenetv3_small_100.lamb_in1k
+    parser.add_argument('--model_name',  default="ghostnet1.0-fp16-server-stu-v4")
     parser.add_argument('--train_csv_path', default="../preprocessed_data/fold1_train.csv")
     parser.add_argument('--val_csv_path',  default="../preprocessed_data/fold1_val.csv")
     parser.add_argument('--external_csv_path', default="../external_data/external_label.csv")
-    parser.add_argument('--saved_path', default='../saved_model/mobilenet')
-    parser.add_argument('--ckpt_path', default='../checkpoints/mobilenet')
+    parser.add_argument('--saved_path', default='../saved_model/ghostnet')
+    parser.add_argument('--ckpt_path', default='../checkpoints/ghostnet')
     parser.add_argument('--spd_para', type=float, default=0.2)
-    parser.add_argument('--log_dir', default="./log/mobilenet")
+    parser.add_argument('--log_dir', default="./log/ghostnet")
 
     args, _ = parser.parse_known_args()
     return args
