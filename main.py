@@ -21,7 +21,6 @@ from utils.transform import transform
 from utils.save_checkpoints import save_ckpt
 import models.inceptionnext
 
-
 def set_seed(seed=2023):
     random.seed(seed)
     np.random.seed(seed)
@@ -44,8 +43,9 @@ def main(args, model, groups_params):
                             shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
 
     if args["use_external"] == 1:
-        external_loader = DataLoader(MyDataset(args["external_csv_path"], train_transform, is_external=True), batch_size=args["batch_size"],
-                              shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
+        external_loader = DataLoader(MyDataset(args["external_csv_path"], train_transform, is_external=True),
+                                     batch_size=args["batch_size"],
+                                     shuffle=True, num_workers=args["num_workers"], pin_memory=True, drop_last=True)
 
     if args["is_parallel"] == 1:
         model = nn.DataParallel(model, device_ids=args["device_ids"])
@@ -118,9 +118,12 @@ def main(args, model, groups_params):
         if args["use_external"] == 1:
             external_train(external_loader, model, loss_func, optimizer, scaler, args)
         if args["is_distill"] == 1:
-            train_loss, train_overall_acc, train_groups_acc = distill_train(train_loader, model, teacher_model, loss_func, soft_loss, optimizer, scaler, args)
+            train_loss, train_overall_acc, train_groups_acc = distill_train(train_loader, model, teacher_model,
+                                                                            loss_func, soft_loss, optimizer, scaler,
+                                                                            args)
         else:
-            train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler, args)
+            train_loss, train_overall_acc, train_groups_acc = train(train_loader, model, loss_func, optimizer, scaler,
+                                                                    args)
         val_loss, val_overall_acc, val_groups_acc, all_preds, all_targets = val(val_loader, model, loss_func, args)
         for i in range(4):
             print(f'Epoch {iter}: group ' + nums2groups[i] + f' val acc: {val_groups_acc[i]}')
@@ -163,9 +166,9 @@ def main(args, model, groups_params):
 if __name__ == '__main__':
     args = vars(args_parser())
     set_seed(2023)
-    if args["drop_path_rate"]>0:
+    if args["drop_path_rate"] > 0:
         pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"],
-                                         drop_path_rate=args["drop_path_rate"], pretrained=True)
+                                             drop_path_rate=args["drop_path_rate"], pretrained=True)
     else:
         pretrained_model = timm.create_model(args["backbone"], drop_rate=args["drop_rate"], pretrained=True)
     # pretrained_model = models.resnet50(pretrained=True)

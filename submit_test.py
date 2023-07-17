@@ -1,13 +1,15 @@
 import os
-import collections
+from collections import OrderedDict
 from tqdm import tqdm
+# from torch import max, cat, index_select, nonzero, zeros, div, sum, load, no_grad, cuda
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import cv2
 import albumentations
 from albumentations import pytorch as AT
-import timm
+from timm import create_model
+
 
 # dataset
 class MyDataset(Dataset):
@@ -49,6 +51,7 @@ class MyDataset(Dataset):
                         labels.append(label)
                         groups.append(group)
         return img_paths, labels, groups
+
 
 # model define
 class MyNet(nn.Module):
@@ -118,13 +121,13 @@ if __name__ == '__main__':
                              shuffle=True, num_workers=4, pin_memory=True, drop_last=False)
 
     # my model
-    model = MyNet(timm.create_model("mobilenetv3_large_100.ra_in1k"), 6)
+    model = MyNet(create_model("mobilenetv3_large_100.ra_in1k"), 6)
     model.to(device)
     model.eval()
 
     # load model weight
     state_dict = torch.load("../saved_model/mobilenet/mobilenetv3_l-fp16-server-stu-v10.pth", map_location=device)
-    new_state_dict = collections.OrderedDict()
+    new_state_dict = OrderedDict()
     for name, params in state_dict.items():
         if "module" in name:
             name = name[7:]
@@ -139,4 +142,4 @@ if __name__ == '__main__':
     groups_acc, overall_acc, fairness_score = test(test_loader, model, device)
     print("Test Overall Accuracy is", overall_acc.item())
     print("Test accuracy of 4 groups [G6 G7 G8 G10] is", groups_acc.tolist())
-    print("Test Fairness score is", fairness_score)
+    print("Test Fairness score is", fairness_score.item())
